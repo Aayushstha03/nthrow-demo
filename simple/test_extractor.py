@@ -28,7 +28,7 @@ def test_simple_extractor():
 
     # url of your dataset, this effectively becomes id of this dataset
     # use l.get_list_row() to return this record from database later
-    extractor.set_list_info("https://quotes.toscrape.com/")
+    extractor.set_list_info("https://www.formula1.com/en/latest")
 
     # sets the CustomStorage if redis can't be found
     # extractor.storage = Storage(conn, table)

@@ -30,7 +30,7 @@ class Extractor(SimpleSource):
         # other variables from extractor.query_args, extractor.settings
         args = self.prepare_request_args(row, _type)
         page = args["cursor"] or 1
-        return f"https://quotes.toscrape.com/page/{page}/", page
+        return f"https://www.formula1.com/en/latest?page={page}/", page
 
     async def fetch_rows(self, row, _type="to"):
         # row is info about this dataset
@@ -47,7 +47,7 @@ class Extractor(SimpleSource):
                 for i, e in enumerate(soup.find_all(class_="quote")):
                     rows.append(
                         {
-                            "uri": f"https://quotes.toscrape.com/#{sha1(e.find(class_='text').get_text())}",  # noqa:E501
+                            "uri": f"https://www.formula1.com/en/latest/#{sha1(e.find(class_='text').get_text())}",  # noqa:E501
                             "author": e.find(class_="author").get_text(),
                             "text": e.find(class_="text").get_text(),
                             "tags": [t.get_text() for t in e.find_all(class_="tag")],

@@ -1,0 +1,1 @@
+docker run --name nthrow_postgres -p 127.0.0.1:5432:5432  -e POSTGRES_PASSWORD=nthrow -e POSTGRES_USER=nthrow -e POSTGRES_DB=n_db -d postgres:13.1-alpine
