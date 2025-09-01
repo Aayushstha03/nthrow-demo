@@ -30,7 +30,7 @@ class Extractor(SimpleSource):
         # other variables from extractor.query_args, extractor.settings
         args = self.prepare_request_args(row, _type)
         page = args["cursor"] or 1
-        return f"https://www.formula1.com/en/latest?page={page}/", page
+        return f"https://www.scrapethissite.com/pages/forms/?page_num={page}", page
 
     async def fetch_rows(self, row, _type="to"):
         # row is info about this dataset
@@ -44,13 +44,17 @@ class Extractor(SimpleSource):
                 rows = []
                 content = res.text
                 soup = BeautifulSoup(content, "html.parser")
-                for i, e in enumerate(soup.find_all(class_="quote")):
+                for i, e in enumerate(soup.find_all(class_="team")):
                     rows.append(
                         {
-                            "uri": f"https://www.formula1.com/en/latest/#{sha1(e.find(class_='text').get_text())}",  # noqa:E501
-                            "author": e.find(class_="author").get_text(),
-                            "text": e.find(class_="text").get_text(),
-                            "tags": [t.get_text() for t in e.find_all(class_="tag")],
+                            "uri": f"https://www.scrapethissite.com/pages/forms/#{sha1(e.find(class_='name').get_text() + e.find(class_='year').get_text())}",
+                            "name": e.find(class_="name").get_text(),
+                            "year": e.find(class_="year").get_text(),
+                            "wins": e.find(class_="wins").get_text(),
+                            "losses": e.find(class_="losses").get_text(),
+                            "ot_losses": e.find(class_="ot-losses").get_text(),
+                            "gf": e.find(class_="gf").get_text(),
+                            "ga": e.find(class_="ga").get_text(),
                         }
                     )
 

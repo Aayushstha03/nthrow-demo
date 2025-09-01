@@ -28,7 +28,7 @@ def test_simple_extractor():
 
     # url of your dataset, this effectively becomes id of this dataset
     # use l.get_list_row() to return this record from database later
-    extractor.set_list_info("https://www.formula1.com/en/latest")
+    extractor.set_list_info("https://www.scrapethissite.com/pages/forms/")
 
     # sets the CustomStorage if redis can't be found
     # extractor.storage = Storage(conn, table)
@@ -36,7 +36,7 @@ def test_simple_extractor():
     # truncate table to remove previous run's rows
     uri_clean(extractor.uri, conn, table)
     extractor.settings = {
-        "remote": {
+        "remote": { 
             "refresh_interval": 15,
             "run_period": "18-2",  # 24 hrs format
             "timezone": "Asis/Kathmandu",
