@@ -30,7 +30,11 @@ class Extractor(SimpleSource):
         # other variables from extractor.query_args, extractor.settings
         args = self.prepare_request_args(row, _type)
         page = args["cursor"] or 1
-        return f"https://www.scrapethissite.com/pages/forms/?page_num={page}", page
+        teamname = self.settings.get("remote", {}).get("teamname")
+        if teamname:
+            return f"https://www.scrapethissite.com/pages/forms/?q={teamname}", page
+        else:
+            return f"https://www.scrapethissite.com/pages/forms/?page_num={page}", page
 
     async def fetch_rows(self, row, _type="to"):
         # row is info about this dataset

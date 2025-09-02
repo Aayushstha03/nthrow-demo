@@ -21,6 +21,9 @@ create_store(conn, table)
 async def main():
     extractor = Extractor(conn, table)
     extractor.set_list_info("https://www.scrapethissite.com/pages/forms/")
+    extractor.query_args = {
+        "teamname": "boston",
+    }
     extractor.settings = {
         "remote": {
             "refresh_interval": 15,
@@ -32,6 +35,13 @@ async def main():
         extractor.session = session
         result = await extractor.collect_rows(extractor.get_list_row())
         print(result)
+
+        while (
+            extractor.get_list_row()["state"]["pagination"].get("to") <= 5
+            and extractor.should_run_again() is True
+        ):
+            result = await extractor.collect_rows(extractor.get_list_row())
+            print(result)
 
 
 if __name__ == "__main__":
