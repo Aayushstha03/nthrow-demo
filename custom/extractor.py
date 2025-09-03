@@ -30,8 +30,9 @@ class Extractor(SimpleSource):
         # other variables from extractor.query_args, extractor.settings
         args = self.prepare_request_args(row, _type)
         page = args["cursor"] or 1
-        teamname = self.settings.get("remote", {}).get("teamname")
+        teamname = self.query_args.get("teamname")
         if teamname:
+            print("Searching for teamname: ", teamname)
             return f"https://www.scrapethissite.com/pages/forms/?q={teamname}", page
         else:
             return f"https://www.scrapethissite.com/pages/forms/?page_num={page}", page
