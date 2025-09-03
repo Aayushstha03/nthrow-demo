@@ -1,4 +1,3 @@
-SELECT * from nthrows;
-
+-- SELECT * from nthrows;
+DELETE FROM nthrows;
 -- select count(*) from nthrows;
--- DELETE FROM nthrows;

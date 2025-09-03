@@ -23,12 +23,12 @@ create_store(conn, table)
 async def main():
     args = parse_args()
     extractor = Extractor(conn, table)
-    teamnames = args.team_names
-    for team in teamnames:
-        print(f"Adding teamname {team} to queue")
-        extractor.set_list_info("https://www.scrapethissite.com/pages/forms/")
+    months = args.months
+    for month in months:
+        print(f"Adding month no {month} to queue")
+        extractor.set_list_info("https://ag.gov.np/abhiyogpatras/")
         extractor.query_args = {
-            "teamname": team,
+            "month": month,
         }
         extractor.settings = {
             "remote": {
@@ -52,13 +52,13 @@ async def main():
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Scrape data for given team names")
+    parser = argparse.ArgumentParser(description="Scrape data for given months")
     parser.add_argument(
-        "-t",
-        "--team_names",
-        type=str,
+        "-m",
+        "--months",
+        type=int,
         nargs="+",
-        help="List of team names to scrape data for",
+        help="List of month numbers to scrape data for, 2078 Baisakh is month no 1",
         default=[None],
     )
     return parser.parse_args()

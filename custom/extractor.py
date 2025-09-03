@@ -30,12 +30,9 @@ class Extractor(SimpleSource):
         # other variables from extractor.query_args, extractor.settings
         args = self.prepare_request_args(row, _type)
         page = args["cursor"] or 1
-        teamname = self.query_args.get("teamname")
-        if teamname:
-            print("Searching for teamname: ", teamname)
-            return f"https://www.scrapethissite.com/pages/forms/?q={teamname}", page
-        else:
-            return f"https://www.scrapethissite.com/pages/forms/?page_num={page}", page
+        month = self.query_args.get("month")
+        print("Searching for month no: ", month)
+        return f"https://ag.gov.np/abhiyogpatras?month_id={month}", page
 
     async def fetch_rows(self, row, _type="to"):
         # row is info about this dataset
@@ -49,19 +46,33 @@ class Extractor(SimpleSource):
                 rows = []
                 content = res.text
                 soup = BeautifulSoup(content, "html.parser")
-                for i, e in enumerate(soup.find_all(class_="team")):
+                for i, e in enumerate(
+                    soup.find_all(class_="col-md-12 col-sm-12 col-xs-8 col-xxs-12")
+                ):
+                    nav_meta = e.find(class_="nav meta").find("li").get_text(strip=True)
+                    title = e.find("h3", class_="h5").get_text(strip=True)
+                    post_content = (
+                        e.find(class_="post--content").find("p").get_text(strip=True)
+                    )
+                    download_link = e.find(class_="post--action").find("a", href=True)[
+                        "href"
+                    ]
                     rows.append(
                         {
-                            "uri": f"https://www.scrapethissite.com/pages/forms/#{sha1(e.find(class_='name').get_text() + e.find(class_='year').get_text())}",
-                            "name": e.find(class_="name").get_text(),
-                            "year": e.find(class_="year").get_text(),
-                            "wins": e.find(class_="wins").get_text(),
-                            "losses": e.find(class_="losses").get_text(),
-                            "ot_losses": e.find(class_="ot-losses").get_text(),
-                            "gf": e.find(class_="gf").get_text(),
-                            "ga": e.find(class_="ga").get_text(),
+                            "uri": f"https://ag.gov.np/abhiyogpatras/#{sha1(nav_meta + title + post_content + download_link)}",
+                            "nav_meta": nav_meta,
+                            "title": title,
+                            "post_content": post_content,
+                            "download_link": download_link,
                         }
                     )
+                    # print(rows)
+
+                # Removing duplicate rows by 'uri' because some entries are duplicated on the website?
+                print(f"Original rows count: {len(rows)}")
+                unique_rows = {row["uri"]: row for row in rows}.values()
+                print(f"Deduped rows count: {len(unique_rows)}")
+                rows = list(unique_rows)
 
                 # slice rows length to limit from extractor.query_args or
                 # extractor.settings[remote]
