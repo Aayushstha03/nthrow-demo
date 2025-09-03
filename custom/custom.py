@@ -1,9 +1,9 @@
+import argparse
 import asyncio
 import os
 from nthrow.utils import create_db_connection, create_store
 from extractor import Extractor
 
-import sys
 
 # Set up your DB credentials and table name
 table = "nthrows"
@@ -21,8 +21,9 @@ create_store(conn, table)
 
 
 async def main():
+    args = parse_args()
     extractor = Extractor(conn, table)
-    teamnames = ["boston", "new york", "los angeles", "chicago"]
+    teamnames = args.team_names
     for team in teamnames:
         print(f"Adding teamname {team} to queue")
         extractor.set_list_info("https://www.scrapethissite.com/pages/forms/")
@@ -48,6 +49,19 @@ async def main():
         # ):
         #     result = await extractor.collect_rows(extractor.get_list_row())
         #     print(result)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Scrape data for given team names")
+    parser.add_argument(
+        "-t",
+        "--team_names",
+        type=str,
+        nargs="+",
+        help="List of team names to scrape data for",
+        default=[None],
+    )
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
