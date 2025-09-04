@@ -22,22 +22,17 @@ create_store(conn, table)
 
 async def main():
     args = parse_args()
-    if args.range:
-        months = list(range(args.range[0], args.range[1] + 1))
-    elif args.months:
-        months = args.months
-    else:
-        months = []
+    magnitude = args.magnitude
     extractor = Extractor(conn, table)
-    for month in months:
-        print(f"Adding month no {month} to queue")
-        extractor.set_list_info("https://ag.gov.np/abhiyogpatras/")
+
+    while True:
+        extractor.set_list_info("https://earthquake.usgs.gov/earthquakes/map/")
         extractor.query_args = {
-            "month": month,
+            "magnitude": magnitude,
         }
         extractor.settings = {
             "remote": {
-                "refresh_interval": 15,
+                "refresh_interval": 2,
                 "run_period": "18-2",
                 "timezone": "Asia/Kathmandu",
             }
@@ -46,33 +41,22 @@ async def main():
             extractor.session = session
             result = await extractor.collect_rows(extractor.get_list_row())
             print(result)
-
-        # for scraping to a certain number of pages
-        # while (
-        #     extractor.get_list_row()["state"]["pagination"].get("to") <= 5
-        #     and extractor.should_run_again() is True
-        # ):
-        #     result = await extractor.collect_rows(extractor.get_list_row())
-        #     print(result)
+        # Sleep for the refresh interval before next run
+        interval = extractor.settings["remote"]["refresh_interval"]
+        print(f"Sleeping for {interval} minutes before next run...")
+        await asyncio.sleep(interval * 60)
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Scrape data for given months")
-    parser.add_argument(
-        "-m",
-        "--months",
-        type=int,
-        nargs="+",
-        help="List of month numbers to scrape data for, 2078 Baisakh is month no 1, latest is 53 2082 Bhadra",
-        default=[None],
+    parser = argparse.ArgumentParser(
+        description="Scrape data for given magnitude threshold"
     )
     parser.add_argument(
-        "-r",
-        "--range",
+        "-m",
+        "--magnitude",
         type=int,
-        nargs=2,
-        help="Range of month numbers to scrape data for, 2078 Baisakh is month no 1, latest is 53 2082 Bhadra",
-        default=None,
+        help="Minimum magnitude threshold for earthquakes (e.g., 1, 2, 3, etc.)",
+        default=0,
     )
     return parser.parse_args()
 

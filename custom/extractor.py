@@ -30,9 +30,11 @@ class Extractor(SimpleSource):
         # other variables from extractor.query_args, extractor.settings
         args = self.prepare_request_args(row, _type)
         page = args["cursor"] or 1
-        month = self.query_args.get("month")
-        print("Searching for month no: ", month)
-        return f"https://ag.gov.np/abhiyogpatras?month_id={month}", page
+        magnitude = self.query_args.get("magnitude")
+        return (
+            f"https://earthquake.usgs.gov/earthquakes/map/?magnitude={magnitude}",
+            page,
+        )
 
     async def fetch_rows(self, row, _type="to"):
         # row is info about this dataset
@@ -46,24 +48,20 @@ class Extractor(SimpleSource):
                 rows = []
                 content = res.text
                 soup = BeautifulSoup(content, "html.parser")
-                for i, e in enumerate(
-                    soup.find_all(class_="col-md-12 col-sm-12 col-xs-8 col-xxs-12")
-                ):
-                    nav_meta = e.find(class_="nav meta").find("li").get_text(strip=True)
-                    title = e.find("h3", class_="h5").get_text(strip=True)
-                    post_content = (
-                        e.find(class_="post--content").find("p").get_text(strip=True)
+                for i, e in enumerate(soup.find_all("usgs-event-item")):
+                    magnitude = e.find("span", class_="ng-star-inserted").get_text(
+                        strip=True
                     )
-                    download_link = e.find(class_="post--action").find("a", href=True)[
-                        "href"
-                    ]
+                    location = e.find("h6", class_="header").get_text(strip=True)
+                    time = e.find("span", class_="time").get_text(strip=True)
+                    depth = e.find("aside", class_="aside").get_text(strip=True)
                     rows.append(
                         {
-                            "uri": f"https://ag.gov.np/abhiyogpatras/#{sha1(nav_meta + title + post_content + download_link)}",
-                            "nav_meta": nav_meta,
-                            "title": title,
-                            "post_content": post_content,
-                            "download_link": download_link,
+                            "uri": f"https://earthquake.usgs.gov/earthquakes/map/#{sha1(magnitude + time + depth)}",
+                            "magnitude": magnitude,
+                            "location": location,
+                            "time": time,
+                            "depth": depth,
                         }
                     )
                     # print(rows)
