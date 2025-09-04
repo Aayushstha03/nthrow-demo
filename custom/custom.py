@@ -22,8 +22,13 @@ create_store(conn, table)
 
 async def main():
     args = parse_args()
+    if args.range:
+        months = list(range(args.range[0], args.range[1] + 1))
+    elif args.months:
+        months = args.months
+    else:
+        months = []
     extractor = Extractor(conn, table)
-    months = args.months
     for month in months:
         print(f"Adding month no {month} to queue")
         extractor.set_list_info("https://ag.gov.np/abhiyogpatras/")
@@ -58,8 +63,16 @@ def parse_args():
         "--months",
         type=int,
         nargs="+",
-        help="List of month numbers to scrape data for, 2078 Baisakh is month no 1",
+        help="List of month numbers to scrape data for, 2078 Baisakh is month no 1, latest is 53 2082 Bhadra",
         default=[None],
+    )
+    parser.add_argument(
+        "-r",
+        "--range",
+        type=int,
+        nargs=2,
+        help="Range of month numbers to scrape data for, 2078 Baisakh is month no 1, latest is 53 2082 Bhadra",
+        default=None,
     )
     return parser.parse_args()
 
