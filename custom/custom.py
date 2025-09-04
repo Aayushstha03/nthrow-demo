@@ -1,4 +1,4 @@
-import argparse
+# import argparse
 import asyncio
 import os
 from nthrow.utils import create_db_connection, create_store
@@ -21,15 +21,15 @@ create_store(conn, table)
 
 
 async def main():
-    args = parse_args()
-    magnitude = args.magnitude
+    # args = parse_args()
+    # magnitude = args.magnitude
     extractor = Extractor(conn, table)
 
     while True:
-        extractor.set_list_info("https://earthquake.usgs.gov/earthquakes/map/")
-        extractor.query_args = {
-            "magnitude": magnitude,
-        }
+        extractor.set_list_info("https://f1/")
+        # extractor.query_args = {
+        #     "magnitude": magnitude,
+        # }
         extractor.settings = {
             "remote": {
                 "refresh_interval": 2,
@@ -47,18 +47,18 @@ async def main():
         await asyncio.sleep(interval * 60)
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Scrape data for given magnitude threshold"
-    )
-    parser.add_argument(
-        "-m",
-        "--magnitude",
-        type=int,
-        help="Minimum magnitude threshold for earthquakes (e.g., 1, 2, 3, etc.)",
-        default=0,
-    )
-    return parser.parse_args()
+# def parse_args():
+#     parser = argparse.ArgumentParser(
+#         description="Scrape data for given magnitude threshold"
+#     )
+#     parser.add_argument(
+#         "-m",
+#         "--magnitude",
+#         type=int,
+#         help="Minimum magnitude threshold for earthquakes (e.g., 1, 2, 3, etc.)",
+#         default=0,
+#     )
+#     return parser.parse_args()
 
 
 if __name__ == "__main__":

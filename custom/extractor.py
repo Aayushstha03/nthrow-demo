@@ -30,9 +30,8 @@ class Extractor(SimpleSource):
         # other variables from extractor.query_args, extractor.settings
         args = self.prepare_request_args(row, _type)
         page = args["cursor"] or 1
-        magnitude = self.query_args.get("magnitude")
         return (
-            f"https://earthquake.usgs.gov/earthquakes/map/?magnitude={magnitude}",
+            "https://www.bbc.com/sport/formula1/latest",
             page,
         )
 
@@ -43,25 +42,30 @@ class Extractor(SimpleSource):
         try:
             url, page = self.make_url(row, _type)
             res = await self.http_get(url)  # wrapper around aiohttp session's get
-
             if res.status_code == 200:
                 rows = []
+
                 content = res.text
                 soup = BeautifulSoup(content, "html.parser")
-                for i, e in enumerate(soup.find_all("usgs-event-item")):
-                    magnitude = e.find("span", class_="ng-star-inserted").get_text(
-                        strip=True
-                    )
-                    location = e.find("h6", class_="header").get_text(strip=True)
-                    time = e.find("span", class_="time").get_text(strip=True)
-                    depth = e.find("aside", class_="aside").get_text(strip=True)
+                soup = soup.find("table", attrs={"aria-label": "Race"})
+                for i, e in enumerate(
+                    soup.find_all(class_="ssrcss-qqhdqi-TableRowBody e1icz100")
+                ):
+                    position = e.find(
+                        class_="visually-hidden ssrcss-1f39n02-VisuallyHidden e16en2lz0"
+                    ).get_text()
+                    driver = e.find(
+                        class_="ssrcss-1hf3wfc-FullName e1dzfgvv4"
+                    ).get_text()
+                    team = e.find(
+                        class_="ssrcss-qo0qz1-TeamFullName e1dzfgvv3"
+                    ).get_text()
                     rows.append(
                         {
-                            "uri": f"https://earthquake.usgs.gov/earthquakes/map/#{sha1(magnitude + time + depth)}",
-                            "magnitude": magnitude,
-                            "location": location,
-                            "time": time,
-                            "depth": depth,
+                            "uri": f"f1whee#{sha1(position + driver + team)}",
+                            "position": position,
+                            "driver": driver,
+                            "team": team,
                         }
                     )
                     # print(rows)
